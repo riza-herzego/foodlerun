@@ -4,8 +4,8 @@ import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
 import javax.microedition.lcdui.game.GameCanvas;
+import javax.microedition.lcdui.game.LayerManager;
 import javax.microedition.lcdui.game.Sprite;
-import javax.microedition.lcdui.game.TiledLayer;
 
 public class pCanvas extends GameCanvas implements Runnable {
 	Thread t;
@@ -18,7 +18,7 @@ public class pCanvas extends GameCanvas implements Runnable {
 
 	int posYimg1 = 0, posYimg2 = height, posYimg3 = height*2;
 	int posYAwan1 = 0, posYAwan2 = height, posYAwan3 = height*2;
-	int posYRoad1 = 0, posYRoad2 = 80, posYRoad3 = width+50;
+	int posYRoad1 = 0, posYRoad2 = 80, posYRoad3 = width+40;
 
 	Image bg;
 	Image awan;
@@ -27,35 +27,53 @@ public class pCanvas extends GameCanvas implements Runnable {
 	Sprite spRun;
 
 	int[] seqRun = new int[] {0,0,1,1,2,2};
+	int[] seqRunKoin = new int[]{0,0,1,1,2,2,3,3,4,4,5,5,6,6};
 	int cX, cY;
+	
+	//gameover
+	boolean gameover = false;
 
 	//koin
 	Image koin;
-	TiledLayer koins;
+	Sprite koins;
+	
+	//layermanager
+	LayerManager lm;
 	
 	private static int[][] arrKoin = {
-		{1,1,1,1,1,1,1,1,1,1,1,1},
-		{1,1,1,1,1,1,1,1,1,1,1,1},
-		{1,1,1,1,2,1,1,1,1,1,1,1},
-		{1,1,1,1,2,1,1,1,1,1,1,1},
-		{1,1,1,1,2,1,1,1,1,1,1,1},
-		{1,1,1,1,1,1,1,1,1,1,1,1},
-		{1,1,1,1,1,1,1,1,1,1,1,1},
-		{1,1,1,1,1,1,1,1,1,1,1,1},
-		{1,1,1,1,1,1,1,1,1,1,1,1},
-		{1,1,1,1,1,1,1,1,1,1,1,1},
-		{1,1,1,1,1,1,1,1,1,1,1,1},
-		{1,1,1,1,1,1,1,1,1,1,1,1},
-		{1,1,1,1,1,1,1,1,1,1,1,1},
-		{1,1,1,1,1,1,1,1,1,1,1,1},
-		{1,1,1,1,1,1,1,1,1,1,1,1},
-		{1,1,1,1,1,1,1,1,1,1,1,1}
+		{0,0,0,0,0,0,0,0,0,0,0,0},
+		{0,0,0,0,0,0,0,0,0,0,0,0},
+		{0,0,0,0,0,0,0,0,0,0,0,0},
+		{0,0,0,0,0,0,0,0,0,0,0,0},
+		{0,0,0,0,0,0,0,0,0,0,0,0},
+		{0,0,0,0,1,0,0,0,0,0,0,0},
+		{0,0,0,0,1,0,0,0,0,0,0,0},
+		{0,0,0,0,1,0,0,0,0,0,0,0},
+		{0,0,0,0,1,0,0,0,0,0,0,0},
+		{0,0,0,0,1,0,0,0,0,0,0,0},
+		{0,0,0,0,0,0,0,0,0,0,0,0},
+		{0,0,0,0,0,0,0,0,0,0,0,0},
+		{0,0,0,0,0,0,0,0,0,0,0,0},
+		{0,0,0,0,0,0,0,0,0,0,0,0},
+		{0,0,0,0,0,0,0,0,0,0,0,0},
+		{0,0,0,0,1,0,0,0,0,0,0,0},		
+		{0,0,0,0,1,0,0,0,0,0,0,0},
+		{0,0,0,0,1,0,0,0,0,0,0,0},
+		{0,0,0,0,1,0,0,0,0,0,0,0},
+		{0,0,0,0,1,0,0,0,0,0,0,0},
+		{0,0,0,0,0,0,0,0,0,0,0,0},
+		{0,0,0,0,0,0,0,0,0,0,0,0},
+		{0,0,0,0,0,0,0,0,0,0,0,0},
+		{0,0,0,0,0,0,0,0,0,0,0,0},
+		{0,0,0,0,0,0,0,0,0,0,0,0},
+		{0,0,0,0,0,0,0,0,0,0,0,0},
+		{0,0,0,0,1,0,0,0,0,0,0,0}
 	};
 	
 	//logic of jump
 	boolean jumping = false;
 	boolean falling = false;
-	int tinggi = 12;
+	public int tinggi = 15;
 
 	//road
 	Image road;
@@ -82,6 +100,7 @@ public class pCanvas extends GameCanvas implements Runnable {
 			drawAwan();
 			drawRoad();
 			drawChar();
+			draw();
 			g.setColor(0, 0, 0);
 			g.setFont(Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_BOLD, Font.SIZE_MEDIUM));
 			g.drawString("Skor: "+skor, width, 0, Graphics.TOP | Graphics.RIGHT);
@@ -109,7 +128,7 @@ public class pCanvas extends GameCanvas implements Runnable {
 			road = Image.createImage("/1nyah.png");				
 			road2 = Image.createImage("/road1-tile.png");
 			road3 = Image.createImage("/road3-tile.png");
-			koin = Image.createImage("/koinn.png");
+			koin = Image.createImage("/koinsp.png");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -127,30 +146,41 @@ public class pCanvas extends GameCanvas implements Runnable {
 	}
 	
 	void initKoin(){
-		koins = new TiledLayer(12, 16, koin, 20, 20);
-		for(int row = 0; row < 16; ++row) {
-			for(int column = 0; column < 12; ++column) {
-				koins.setCell(column, row, arrKoin[row][column]);
+		lm = new LayerManager();
+		for(int i = 0; i < arrKoin.length; i++){
+			for(int j = 0; j < arrKoin[i].length; j++){
+				if(arrKoin[i][j]==1){
+					koins = new Sprite(koin, 20, 20);
+					koins.setFrameSequence(seqRunKoin);
+					koins.setTransform(5);
+					koins.setPosition(j*20, i*20);
+					lm.append(koins);
+				}
 			}
 		}
-		
+	}
+	
+	void draw(){
+		koins.nextFrame();
+		lm.paint(g, 0, posYimg1);
 	}
 
 	void drawChar(){
 		spRun.setTransform(5);
 		spRun.setPosition(cX, cY);
 		spRun.paint(g);
-		if(spRun.collidesWith(koin, 0, 0, true)){
+		if(spRun.collidesWith(koins, true)){
 			skor+=100;
+			koins.setVisible(false);
 		}
 	}
-
+	
 	void gameInput(){
 		int keystate = getKeyStates();
 
 		if (((keystate & UP_PRESSED) != 0)) {
 			spRun.setTransform(2);
-			if (!jumping && !falling) {
+			if (!jumping || !falling) {
 				spRun.nextFrame();
 			}else
 				spRun.setFrame(0);
@@ -196,15 +226,15 @@ public class pCanvas extends GameCanvas implements Runnable {
 			if (posYRoad3 < -width) {
 				posYRoad3 = width;
 			}		
-
-			koins.move(0, 3);
+			
+			//koins.move(0, 3);
 
 		}
 		
 		if (((keystate & DOWN_PRESSED) != 0)) {
 			
 			spRun.setTransform(0);
-			if (!jumping && !falling) {
+			if (!jumping || !falling) {
 				spRun.nextFrame();
 			}else
 				spRun.setFrame(0);
@@ -251,11 +281,11 @@ public class pCanvas extends GameCanvas implements Runnable {
 				posYRoad3 = width;
 			}		
 
-			koins.move(0, -3);
+			//koins.move(0, -3);
 			
 		}
 		if ((keystate & FIRE_PRESSED) != 0) {
-			if (!jumping && !falling) {
+			if (!jumping || !falling) {
 				jumping = true;
 			}
 		}
@@ -266,10 +296,6 @@ public class pCanvas extends GameCanvas implements Runnable {
 			g.drawRegion(bg, 0, 0, bg.getWidth(), bg.getHeight(), 5, 0, posYimg2, Graphics.LEFT | Graphics.BOTTOM);
 			g.drawRegion(bg, 0, 0, bg.getWidth(), bg.getHeight(), 5, 0, posYimg3, Graphics.LEFT | Graphics.BOTTOM);			
 			
-            if(koins.getY() + 120 < 0) {
-                koins.setPosition(koins.getY(), height);
-            }
-            koins.paint(g);
 	}
 	
 	void drawRoad(){
@@ -282,8 +308,7 @@ public class pCanvas extends GameCanvas implements Runnable {
 			roads2.paint(g);
 			roads3.setPosition(0, posYRoad3);
 			roads3.setTransform(5);
-			roads3.paint(g);
-			
+			roads3.paint(g);			
 	}
 
 	void drawMatahari(){
@@ -310,22 +335,40 @@ public class pCanvas extends GameCanvas implements Runnable {
 		if (falling) {
 			tinggi++;
 			cX -= tinggi;
-			if (tinggi > 12) {
+			/*if (tinggi > 15) {
 				falling = false;
 				cX = 30;
 				onRoad = false;
+			}*/
+			if(spRun.collidesWith(roads, true)){
+				tinggi = 15;
+				falling = false;
+                onRoad = true;
+                cX = spRun.getX();
 			}
-			//biar menapak ke-roadnya
 			else if(spRun.collidesWith(roads2, true)){
+				tinggi = 15;
 					falling = false;
 	                onRoad = true;
 	                cX = spRun.getX();
 			}
+			else if(spRun.collidesWith(roads3, true)){
+				tinggi = 15;
+				falling = false;
+                onRoad = true;
+                cX = spRun.getX();
+			}
+			//kurang satu logic lagi, yaitu klo dia jatuh ga napak mana2, 
+			//harusnya langsung ngurangin nyawa dan mulai dari awal lagi
+		
 		}
 		
 		if (onRoad) {
         	if ((!spRun.collidesWith(roads2, true) && !jumping)) {
         			falling = true;
+        	}
+        	if ((!spRun.collidesWith(roads3, true) && !jumping)) {
+    			falling = true;
         	}
         }
 
