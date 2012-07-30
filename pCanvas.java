@@ -10,7 +10,9 @@ import javax.microedition.lcdui.game.Sprite;
 public class pCanvas extends GameCanvas implements Runnable {
 	Thread t;
 	Graphics g;
-
+	
+	Sprite[] simpanKoin;
+	
 	int width = 240;
     int height = 320;
 
@@ -146,6 +148,8 @@ public class pCanvas extends GameCanvas implements Runnable {
 	}
 	
 	void initKoin(){
+		simpanKoin = new Sprite[11];
+		int x = 0;
 		lm = new LayerManager();
 		for(int i = 0; i < arrKoin.length; i++){
 			for(int j = 0; j < arrKoin[i].length; j++){
@@ -154,6 +158,8 @@ public class pCanvas extends GameCanvas implements Runnable {
 					koins.setFrameSequence(seqRunKoin);
 					koins.setTransform(5);
 					koins.setPosition(j*20, i*20);
+					simpanKoin[x] = koins;
+					x++;
 					lm.append(koins);
 				}
 			}
@@ -161,7 +167,9 @@ public class pCanvas extends GameCanvas implements Runnable {
 	}
 	
 	void draw(){
-		koins.nextFrame();
+		for(int i = 0 ; i < 11 ; i++){
+		simpanKoin[i].nextFrame();
+		}
 		lm.paint(g, 0, posYimg1);
 	}
 
