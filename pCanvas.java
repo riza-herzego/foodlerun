@@ -12,8 +12,9 @@ import javax.microedition.lcdui.game.Sprite;
 public class pCanvas extends GameCanvas implements Runnable {
 	Thread t;
 	Graphics g;
-        Sprite[] simpanKoin;
-
+    Sprite[] simpanKoin;
+        
+    // ArrayList<Sprite> a = new ArrayList<Sprite>();   
 	int width = 240;
     int height = 320;
 
@@ -22,7 +23,7 @@ public class pCanvas extends GameCanvas implements Runnable {
 	int posYimg1 = 0, posYimg2 = height, posYimg3 = height*2;
 	int posYAwan1 = 0, posYAwan2 = height, posYAwan3 = height*2;
 	int posYRoad1 = 0, posYRoad2 = 80, posYRoad3 = width+40;
-
+	int posYKoin=0;
 	Image bg;
 	Image awan;
 	//sprite
@@ -49,24 +50,24 @@ public class pCanvas extends GameCanvas implements Runnable {
 		{0,0,0,0,0,0,0,0,0,0,0,0},
 		{0,0,0,0,0,0,0,0,0,0,0,0},
 		{0,0,0,0,0,0,0,0,0,0,0,0},
+		{0,0,0,0,1,0,0,1,0,0,0,0},
 		{0,0,0,0,1,0,0,0,0,0,0,0},
-		{0,0,0,0,1,0,0,0,0,0,0,0},
-		{0,0,0,0,1,0,0,0,0,0,0,0},
+		{0,0,0,0,1,0,0,0,1,0,0,0},
 		{0,0,0,0,1,0,0,0,0,0,0,0},
 		{0,0,0,0,1,0,0,0,0,0,0,0},
 		{0,0,0,0,0,0,0,0,0,0,0,0},
+		{0,0,0,0,0,0,0,0,0,1,0,0},
 		{0,0,0,0,0,0,0,0,0,0,0,0},
 		{0,0,0,0,0,0,0,0,0,0,0,0},
-		{0,0,0,0,0,0,0,0,0,0,0,0},
-		{0,0,0,0,0,0,0,0,0,0,0,0},
+		{0,0,0,0,0,0,0,0,1,0,0,0},
 		{0,0,0,0,1,0,0,0,0,0,0,0},		
-		{0,0,0,0,1,0,0,0,0,0,0,0},
+		{0,0,0,0,1,0,0,0,0,1,0,0},
 		{0,0,0,0,1,0,0,0,0,0,0,0},
 		{0,0,0,0,1,0,0,0,0,0,0,0},
 		{0,0,0,0,1,0,0,0,0,0,0,0},
 		{0,0,0,0,0,0,0,0,0,0,0,0},
 		{0,0,0,0,0,0,0,0,0,0,0,0},
-		{0,0,0,0,0,0,0,0,0,0,0,0},
+		{0,0,0,0,0,1,0,0,1,0,0,0},
 		{0,0,0,0,0,0,0,0,0,0,0,0},
 		{0,0,0,0,0,0,0,0,0,0,0,0},
 		{0,0,0,0,0,0,0,0,0,0,0,0},
@@ -149,7 +150,7 @@ public class pCanvas extends GameCanvas implements Runnable {
 	}
 	
 	void initKoin(){
-		 simpanKoin = new Sprite[11];
+		 simpanKoin = new Sprite[18];
             int aa = 0;
 		lm = new LayerManager();
 		for(int i = 0; i < arrKoin.length; i++){
@@ -173,16 +174,23 @@ public class pCanvas extends GameCanvas implements Runnable {
 	}
 	
 	void draw(){
-                for(int i = 0; i < 11; i++){
+		int keystate = getKeyStates();
+		if (((keystate & DOWN_PRESSED) != 0)) {
+			posYKoin = posYKoin + 3;
+		}
+		for(int i = 0; i < 18; i++){
                 	simpanKoin[i].nextFrame();
-                
-                }
+                	
+                	simpanKoin[i].setPosition(simpanKoin[i].getX(), simpanKoin[i].getY()-posYKoin);
+                	simpanKoin[i].paint(g);
+        }
+		posYKoin=0;
 	//	for(int cc = 0 ; cc < 11 ; cc++){
 		
 //		}              
 
                 
-		lm.paint(g, 0, posYimg1);
+		//lm.paint(g, 0, posYimg1);
 	}
 
 	void drawChar(){
@@ -196,9 +204,10 @@ public class pCanvas extends GameCanvas implements Runnable {
 		spRun.setPosition(cX, cY);
 		spRun.paint(g);
 		}
-        for(int i = 0; i < 11; i++){    
-        	if(simpanKoin[i].collidesWith(spRun, true)){
-			skor+=100;
+        for(int i = 0; i < 18; i++){    
+        	if((simpanKoin[i].collidesWith(spRun, true)) ){ 
+		//	System.out.println("bisa");
+        		skor+=100;
 			simpanKoin[i].setVisible(false);
 		}
         }
