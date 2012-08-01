@@ -1,3 +1,5 @@
+
+
 import java.io.IOException;
 
 import javax.microedition.lcdui.Font;
@@ -10,9 +12,8 @@ import javax.microedition.lcdui.game.Sprite;
 public class pCanvas extends GameCanvas implements Runnable {
 	Thread t;
 	Graphics g;
-	
-	Sprite[] simpanKoin;
-	
+        Sprite[] simpanKoin;
+
 	int width = 240;
     int height = 320;
 
@@ -148,8 +149,8 @@ public class pCanvas extends GameCanvas implements Runnable {
 	}
 	
 	void initKoin(){
-		simpanKoin = new Sprite[11];
-		int x = 0;
+		 simpanKoin = new Sprite[11];
+            int aa = 0;
 		lm = new LayerManager();
 		for(int i = 0; i < arrKoin.length; i++){
 			for(int j = 0; j < arrKoin[i].length; j++){
@@ -158,29 +159,49 @@ public class pCanvas extends GameCanvas implements Runnable {
 					koins.setFrameSequence(seqRunKoin);
 					koins.setTransform(5);
 					koins.setPosition(j*20, i*20);
-					simpanKoin[x] = koins;
-					x++;
-					lm.append(koins);
+				   simpanKoin[aa]= new Sprite(koin, 20, 20);
+                    simpanKoin[aa].setFrameSequence(seqRunKoin);
+					simpanKoin[aa].setTransform(5);
+					simpanKoin[aa].setPosition(j*20, i*20);
+                                        
+					lm.append(simpanKoin[aa]);
+					aa++;
 				}
 			}
 		}
+
 	}
 	
 	void draw(){
-		for(int i = 0 ; i < 11 ; i++){
-		simpanKoin[i].nextFrame();
-		}
+                for(int i = 0; i < 11; i++){
+                	simpanKoin[i].nextFrame();
+                
+                }
+	//	for(int cc = 0 ; cc < 11 ; cc++){
+		
+//		}              
+
+                
 		lm.paint(g, 0, posYimg1);
 	}
 
 	void drawChar(){
+		if(spRun.getX() < 0){
+			spRun.setTransform(5);
+			spRun.setPosition(30, 30);
+			spRun.paint(g);
+		}
+		else{
 		spRun.setTransform(5);
 		spRun.setPosition(cX, cY);
 		spRun.paint(g);
-		if(spRun.collidesWith(koins, true)){
-			skor+=100;
-			koins.setVisible(false);
 		}
+        for(int i = 0; i < 11; i++){    
+        	if(simpanKoin[i].collidesWith(spRun, true)){
+			skor+=100;
+			simpanKoin[i].setVisible(false);
+		}
+        }
 	}
 	
 	void gameInput(){
@@ -292,7 +313,7 @@ public class pCanvas extends GameCanvas implements Runnable {
 			//koins.move(0, -3);
 			
 		}
-		if ((keystate & FIRE_PRESSED) != 0) {
+		if (((keystate & FIRE_PRESSED) != 0) || ((keystate & RIGHT_PRESSED) != 0)) {
 			if (!jumping || !falling) {
 				jumping = true;
 			}
@@ -331,6 +352,7 @@ public class pCanvas extends GameCanvas implements Runnable {
 	}
 
 	void jump(){
+		
 		if (jumping) {
 			tinggi--;
 			cX += tinggi;
